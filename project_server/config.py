@@ -1,0 +1,2 @@
+conn = None
+cur = None
