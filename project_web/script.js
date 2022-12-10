@@ -33,19 +33,21 @@ map_select.addEventListener('click', async function (evt) {
     console.log("origin_f: ", origin.coords);
     reroute(second_dest.origin, origin.coords, 2)
 })
-
+//second_dest.origin, origin.coords
 
 // San Francisco
 // const origin = [-122.414, 37.776];
 
 
 // Helsinki
-const destination = [24.945, 60.192];
+const destination = [23.9711,
+    56.9236];   // riga
 console.log("destination: " + destination);
+
 
 const second_dest = {
     origin: destination,    // from the first route
-    destination: [14.945, 50.192],
+    destination: [14.945, 50.192],      // prague [14.945, 50.192]
 }
 
 
@@ -65,7 +67,7 @@ function reroute(origin, destination, num) {
             }
         ]
     };
-    console.log(route)
+    // console.log(route)
 // A single point that animates along the route.
 // Coordinates are initially set to origin.
     const point = {
