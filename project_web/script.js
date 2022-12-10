@@ -31,7 +31,8 @@ map_select.addEventListener('click', async function (evt) {
     let response = await fetch('http://127.0.0.1:5000/origin');
     const origin = await response.json();
     console.log("origin_f: ", origin.coords);
-    reroute(second_dest.origin, origin.coords, 2)
+    reroute(origin.coords, destination, 2)  // both origin and destination need to be set dinamic.
+    // so need update http://127.0.0.1:5000/origin to 2nd value when we arrive there.
 })
 //second_dest.origin, origin.coords
 
