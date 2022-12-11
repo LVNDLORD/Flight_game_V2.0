@@ -79,17 +79,6 @@ def close_db_connection():
 
 
 # getting data from db
-# @app.route("/starting_pos")
-# def starting_location():
-#     start_city_query = f"SELECT * FROM airport WHERE icao = 'EFHK';"
-#     config.cur.execute(start_city_query)
-#     result = config.cur.fetchall()
-#     print(result)
-#     config.current_location = result[0]
-#     starting_airport = {'city': result[0], 'country': result[1], 'coords': [result[3], result[2]], 'ICAO': result[4]}
-#     json_data = json.dumps(starting_airport, default=lambda o: o.__dict__, sort_keys=True, indent=4)
-#     print(json_data)
-#     return config.current_location
 @app.route("/origin")
 def starting_airport():
     sql = f"SELECT city, country, latitude_deg, longitude_deg, icao FROM airport WHERE icao = 'EFHK';"
@@ -108,17 +97,18 @@ def get_random_airports():
                         f"(SELECT icao FROM airport order by random() limit 1);"
         config.cur.execute(sql_db_length)
         result = config.cur.fetchall()
-        # Generate X number of random airports. Make sure it's not a repeated and different from the starting location
-        # [('EFHK', 'Helsinki Vantaa Airport', 60.3172, 24.9633, 179, 'Finland', 'Helsinki')]
-        # print(result)
         if result[0] not in airports_list and result[0][0] != 'Helsinki':     # predef Helsinki
-            #airports_tuple = (result[0][0], result[0][1])
             airports_obj = {'city': result[0][0], 'country': result[0][1], 'coords': [result[0][3], result[0][2]], 'ICAO': result[0][4]}
             airports_list.append(airports_obj)
         else:
             continue
         json_data = json.dumps(airports_list, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        config.goal_airports = json_data
     return json_data
+
+@app.route("/goals")
+def get_goals():
+    return config.goal_airports
 
 
 
@@ -154,7 +144,7 @@ connect_db()
 starting_airport()
 # doesnt play a role. Currently flying from second dest in js (line 48) to origin at line 31 from http://127.0.0.1:5000/origin
 target_airport('EVRA')  # !! pass value, as ICAO to this function to make it fly.
-
+get_random_airports()
 
 # end of the prog
 #close_db_connection()

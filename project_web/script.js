@@ -31,6 +31,8 @@ map_select.addEventListener('click', async function (evt) {
     let response = await fetch('http://127.0.0.1:5000/origin');
     const origin = await response.json();
     console.log("origin_f: ", origin.coords);
+    //goal_countries.splice(2,1);
+    console.log("goal countries", goal_countries);
     reroute(origin.coords, destination, 2)  // both origin and destination need to be set dinamic.
     // so need update http://127.0.0.1:5000/origin to 2nd value when we arrive there.
 })
@@ -41,16 +43,23 @@ map_select.addEventListener('click', async function (evt) {
 
 
 // Helsinki
-const destination = [23.9711,
-    56.9236];   // riga
+const destination = [23.9711, 56.9236];   // riga
 console.log("destination: " + destination);
 
 
 const second_dest = {
-    origin: destination,    // from the first route
+    origin: destination,                // from the first route
     destination: [14.945, 50.192],      // prague [14.945, 50.192]
 }
 
+let goal_countries;
+async function getGoals() {
+    let response = await fetch('http://127.0.0.1:5000/goals');
+    let goals = await response.json();
+    console.log("Obtained the goal airports");
+    goal_countries = goals;
+    return goals
+}
 
 function reroute(origin, destination, num) {
 
@@ -192,5 +201,5 @@ function reroute(origin, destination, num) {
 
 
 map.on('load', () => {
-
+    getGoals();
 });
