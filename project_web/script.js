@@ -30,20 +30,19 @@ async function getCities() {
     console.log("cityList", cityList);
     game_origin = cityList[4];
     console.log(`Origin coords: ${game_origin.coords} Origin City: ${game_origin.city}`);
-    console.log("T", game_origin.coords[0]);
     //console.log(distance(60.3172,24.9633, 47.4298, 19.2611));
-    return cityList
+    //return cityList
 }
 
 // Haversine formula - https://www.htmlgoodies.com/javascript/calculate-the-distance-between-two-points-in-your-web-apps/
 function distance(lat1, lon1, lat2, lon2) {
-    var radlat1 = Math.PI * lat1/180
-    var radlat2 = Math.PI * lat2/180
-    var radlon1 = Math.PI * lon1/180
-    var radlon2 = Math.PI * lon2/180
-    var theta = lon1-lon2
-    var radtheta = Math.PI * theta/180
-    var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+    let radlat1 = Math.PI * lat1/180
+    let radlat2 = Math.PI * lat2/180
+    let radlon1 = Math.PI * lon1/180
+    let radlon2 = Math.PI * lon2/180
+    let theta = lon1-lon2
+    let radtheta = Math.PI * theta/180
+    let dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
     dist = Math.acos(dist)
     dist = dist * 180/Math.PI
     dist = dist * 60 * 1.1515
@@ -53,41 +52,34 @@ function distance(lat1, lon1, lat2, lon2) {
 
 let in_range_destinations;
 async function getFlyable_Destinations() {
-    /*let response = await fetch('http://127.0.0.1:5000/fly_destinations');
-    let flydestinations = await response.json();
-    in_range_destinations = flydestinations
-    console.log(in_range_destinations);
-    return in_range_destinations*/
+    await getGoals();
     console.log("test wtf", game_origin);
-    /*let origin_x = game_origin.coords[0];
-    let origin_y = game_origin.coords[1];
-    for (let i = 0; cityList.length; i++) {
-        d = distance(origin_x, origin_y, cityList[i].coords[0],cityList[i].coords[1])
-        console.log(d);
-    }*/
-}
-
-// Create buttons where the player is allowed to navigate to
-async function createDestinationButtons() {
-    await getFlyable_Destinations(); // wait for the JSON with country destinations within range is finished before attempting to create the buttons
+    console.log("city list", cityList);
+    let origin_x = game_origin.coords[1];
+    let origin_y = game_origin.coords[0];
     let button = [];
     const container = document.querySelector('#container');
     fly_title = document.createElement('h2')
     fly_title.innerHTML += "Fly to:";
     container.appendChild(fly_title);
-    //console.log("waited");
-    console.log(in_range_destinations);
-    for (let i = 0; i < in_range_destinations.length; i++) {
-        button[i] = document.createElement('button');
-        container.appendChild(button[i]);
-        button[i].setAttribute('class', 'destinations');
-        button[i].setAttribute('name', `${in_range_destinations[i][6]}`);
-        button[i].innerHTML += `${in_range_destinations[i][6]}, ${in_range_destinations[i][5]}`;
+
+    for (let i = 0; i < cityList.length; i++) {
+        d = distance(origin_x, origin_y, cityList[i].coords[1],cityList[i].coords[0]);
+        //console.log(`i: ${i} Distance: ${d}`);
+        if (d > 0 && d < 800) {
+            //console.log(cityList[i].city);
+            button[i] = document.createElement('button');
+            container.appendChild(button[i]);
+            button[i].setAttribute('class', 'destinations');
+            button[i].setAttribute('name', `${cityList[i].city}`);
+            button[i].innerHTML += `${cityList[i].city}, ${cityList[i].country}`;
+        }
     }
 }
 
 let goal_countries;
 async function getGoals() {
+    await getCities();
     let response = await fetch('http://127.0.0.1:5000/goals');
     let goals = await response.json();
     //console.log("Obtained the goal airports");
@@ -295,8 +287,8 @@ function reroute(origin, destination, num) {
 }
 
 map.on('load', () => {
-    getCities();
-    getGoals();
+    //getCities();
+    //getGoals();
     //createDestinationButtons();
     getFlyable_Destinations();
 });
