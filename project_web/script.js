@@ -124,6 +124,12 @@ $(document).on('click','.destinations',function(e)
      }
      console.log(destinationObj.coords);
      destination = destinationObj.coords;
+
+    // remove mapbox stuff
+    map.removeLayer('route2');
+    map.removeLayer('point2');
+    map.removeSource('route2');
+    map.removeSource('point2');
 });
 
 function reroute(origin, destination, num) {
