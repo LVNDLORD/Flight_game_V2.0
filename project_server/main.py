@@ -90,7 +90,7 @@ def close_db_connection():
 #     json_data = json.dumps(starting_airport, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 #     print(json_data)
 #     return config.current_location
-@app.route("/origin")
+@app.route("/current")
 def starting_airport():
     sql = f"SELECT city, country, latitude_deg, longitude_deg, icao FROM airport WHERE icao = 'EFHK';"
     config.cur.execute(sql)
@@ -135,7 +135,16 @@ def target_airport(icao):
     return json_data
 
 
-
+# @app.route('/nearby')
+# def airports_nearby():
+#     reachable_airports = []
+#     nearby = f"SELECT city, country, latitude_deg, longitude_deg, icao FROM airport WHERE city != '{current_location[-1]}';"
+#     cur.execute(nearby)
+#     result = cur.fetchall()
+#     for coords in result:
+#         if distance.distance(coords[2:4], current_location[2:4]).km < flight_range:
+#             reachable_airports.append(coords)
+#     return reachable_airports
 
 
 # def third_airport():

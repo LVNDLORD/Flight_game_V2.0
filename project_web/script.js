@@ -28,10 +28,12 @@ const map = new mapboxgl.Map({
 const map_select = document.querySelector('#replay');
 map_select.addEventListener('click', async function (evt) {
     evt.preventDefault();
-    let response = await fetch('http://127.0.0.1:5000/origin');
-    const origin = await response.json();
-    console.log("origin_f: ", origin.coords);
-    reroute(origin.coords, destination, 2)  // both origin and destination need to be set dinamic.
+    let response = await fetch('http://127.0.0.1:5000/current');
+    const current = await response.json();
+    console.log("origin_f: ", current.coords);
+    reroute(current.coords, destination.coords, 2)  // both origin and destination need to be set dinamic.
+
+
     // so need update http://127.0.0.1:5000/origin to 2nd value when we arrive there.
 })
 //second_dest.origin, origin.coords
@@ -41,8 +43,15 @@ map_select.addEventListener('click', async function (evt) {
 
 
 // Helsinki
-const destination = [23.9711,
-    56.9236];   // riga
+const destination = {
+  "ICAO": "EVRA",
+  "city": "Riga",
+  "coords": [
+    23.9711,
+    56.9236
+  ],
+  "country": "Latvia"
+}   // riga
 console.log("destination: " + destination);
 
 
@@ -181,11 +190,25 @@ function reroute(origin, destination, num) {
         }
 
         counter = counter + 1;
+
     }
 
 
     // Start the animation
     animate(counter);
+
+
+    const updateCurrentPos =  async function (evt) {
+    evt.preventDefault();
+    //let dataToSend = destination
+    destination = await fetch('http://127.0.0.1:5000/current')
+    const current = await destination.json();
+    console.log("curr: ", current);
+    return current
+
+
+}
+
 
 
 }
@@ -194,3 +217,21 @@ function reroute(origin, destination, num) {
 map.on('load', () => {
 
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
