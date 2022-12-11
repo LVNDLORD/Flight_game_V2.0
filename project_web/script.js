@@ -1,3 +1,4 @@
+'use strict';
 // // San Francisco
 // const origin = [-122.414, 37.776];
 // console.log("origin: " + origin);
@@ -24,6 +25,50 @@ const map = new mapboxgl.Map({
     zoom: 4,
     pitch: 20
 });
+
+let target_cities = []
+
+const targetCities = 'http://127.0.0.1:5000/list';
+async function getCities(url) {
+    const response = await fetch(url);
+        let data = await response.json();
+        let cityList = JSON.stringify(data);
+        console.log(data.length)        // 5
+        console.log(typeof (data))
+        console.log(typeof (data))
+        console.log(data[2].city)        // 5
+        console.log(JSON.stringify(data) + ' 5cities');
+        assignCities(data);
+       // target_cities.append(cityList)      // not working
+
+}
+
+getCities(targetCities);
+console.log(target_cities)
+
+let button = [];
+function assignCities(data) {
+    const container = document.querySelector('#container');
+    //button = document.createElement('button')
+    for (let i = 0; i < data.length; i++) {
+        console.log(data)
+        button[i] = document.createElement('button')
+        container.appendChild(button[i]);
+        button[i].setAttribute('class', 'destinations')
+        button[i].innerHTML += `${data[i].city}`;
+       // button[i].innerHTML += `${data[i].city}`;
+    }
+    // Object.entries(data).forEach(entry => {
+    //     const [key, value] = entry;
+    //
+    // })
+    // container.forEach(button => {
+    //
+    // })
+    // button.innerHTML = data[0].city; // working with line 50 and if <button class="destinations">1</button> is present
+}
+
+
 
 const map_select = document.querySelector('#replay');
 map_select.addEventListener('click', async function (evt) {
