@@ -91,19 +91,39 @@ def starting_airport():
 @app.route("/list")
 def get_random_airports():
     airports_list = []
+    airports_obj_list = []
     while len(airports_list) < 5:
         sql_db_length = f"SELECT city, country, latitude_deg, longitude_deg, icao FROM airport WHERE icao = " \
                         f"(SELECT icao FROM airport order by random() limit 1);"
         config.cur.execute(sql_db_length)
         result = config.cur.fetchall()
+        print(result[0])
         if result[0] not in airports_list and result[0][0] != 'Helsinki':     # predef Helsinki
+            airports_list.append(result[0])
             airports_obj = {'city': result[0][0], 'country': result[0][1], 'coords': [result[0][3], result[0][2]], 'ICAO': result[0][4]}
-            airports_list.append(airports_obj)
+            airports_obj_list.append(airports_obj)
         else:
             continue
-        json_data = json.dumps(airports_list, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+        json_data = json.dumps(airports_obj_list, default=lambda o: o.__dict__, sort_keys=True, indent=4)
         config.goal_airports = json_data
     return json_data
+
+# receives all airport from DB!
+@app.route("/all")
+def get_airports():
+    airports_list = []
+    sql_db_length = f"SELECT city, country, latitude_deg, longitude_deg, icao FROM airport";
+    config.cur.execute(sql_db_length)
+    result = config.cur.fetchall()
+    for i in range(len(result)):
+        airports_obj = {'city': result[i][0], 'country': result[i][1], 'coords': [result[i][3], result[i][2]],
+                    'ICAO': result[i][4]}
+        airports_list.append(airports_obj)
+        i+=1
+    json_data = json.dumps(airports_list, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+    #config.goal_airports = json_data
+    return json_data
+
 
 @app.route("/goals")
 def get_goals():
@@ -116,7 +136,7 @@ def flyable_destinations():
     config.current_location = loc['coords'] # Grab starting/current city coords
     config.current_location.reverse() # Reverse the coordinates for distance calculation because the mapbox api is retarded
     config.current_location = tuple(config.current_location) # convert to a tuple for geopy
-    print(config.current_location)
+    #print(config.current_location)
     reachable_airports = []
     nearby = f"SELECT * from airport where city != '{config.current_city}';"
     config.cur.execute(nearby)
