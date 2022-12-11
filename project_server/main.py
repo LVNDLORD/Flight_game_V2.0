@@ -97,7 +97,7 @@ def get_random_airports():
                         f"(SELECT icao FROM airport order by random() limit 1);"
         config.cur.execute(sql_db_length)
         result = config.cur.fetchall()
-        print(result[0])
+        #print(result[0])
         if result[0] not in airports_list and result[0][0] != 'Helsinki':     # predef Helsinki
             airports_list.append(result[0])
             airports_obj = {'city': result[0][0], 'country': result[0][1], 'coords': [result[0][3], result[0][2]], 'ICAO': result[0][4]}
@@ -112,7 +112,7 @@ def get_random_airports():
 @app.route("/all")
 def get_airports():
     airports_list = []
-    sql_db_length = f"SELECT city, country, latitude_deg, longitude_deg, icao FROM airport";
+    sql_db_length = f"SELECT city, country, latitude_deg, longitude_deg, icao FROM airport;"
     config.cur.execute(sql_db_length)
     result = config.cur.fetchall()
     for i in range(len(result)):
@@ -153,6 +153,7 @@ connect_db()
 starting_airport()
 get_random_airports()
 flyable_destinations()
+get_airports()
 
 # end of the prog
 #close_db_connection()

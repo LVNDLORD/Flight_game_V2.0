@@ -14,45 +14,25 @@ const map = new mapboxgl.Map({
 const map_select = document.querySelector('#replay');
 map_select.addEventListener('click', async function (evt) {
     evt.preventDefault();
-    // commented this out since it makes no sense to use "REPLAY" as a main play button tbh
-    /*let response = await fetch('http://127.0.0.1:5000/origin');
-    const origin = await response.json();
-    console.log("origin_f: ", origin.coords);*/
-    //goal_countries.splice(2,1);
-    console.log("goal countries", goal_countries);
-    console.log("getOrigin returns", getOrigin());
-    console.log("game_origin coords is ", game_origin.coords);
     reroute(game_origin.coords, destination, 2)  // both origin and destination need to be set dinamic.
-    console.log(game_origin)
 })
 
 // Helsinki
 const destination = [23.9711, 56.9236];   // riga
-console.log("destination: " + destination);
+//console.log("destination: " + destination);
 
-let game_origin;
-console.log(game_origin)
+
 
 let cityList;
+let game_origin;
 async function getCities() {
-    const response = await fetch('http://127.0.0.1:5000/all');
+    let response = await fetch('http://127.0.0.1:5000/all');
     let cityObject = await response.json();
-    console.log("Origin coords are: ", cityObject.coords);
-
-
-    console.log("Object", cityObject);
-    cityList = origin;
+    cityList = cityObject;
+    console.log("cityList", cityList);
+    game_origin = cityList[4];
+    console.log(`Origin coords: ${game_origin.coords} Origin City: ${game_origin.city}`);    
     return cityList
-}
-
-console.log(cityList);
-async function getOrigin() {
-    let response = await fetch('http://127.0.0.1:5000/origin');
-    let origin = await response.json();
-    console.log("Origin coords are: ", origin.coords);    
-    console.log("Origin city", origin.city);
-    game_origin = origin
-    return game_origin
 }
 
 let in_range_destinations;
@@ -80,31 +60,13 @@ async function createDestinationButtons() {
         button[i].setAttribute('name', `${in_range_destinations[i][6]}`);
         button[i].innerHTML += `${in_range_destinations[i][6]}, ${in_range_destinations[i][5]}`;
     }
-
-    // button.addEventListener('click', async function (evt) {
-    //     evt.preventDefault();
-    //     console.log('button clicked ' + button.innerHTML)
-    // })
 }
-
-// .addEventListener('click', async function (evt) {
-//     evt.preventDefault();
-//     // commented this out since it makes no sense to use "REPLAY" as a main play button tbh
-//     /*let response = await fetch('http://127.0.0.1:5000/origin');
-//     const origin = await response.json();
-//     console.log("origin_f: ", origin.coords);*/
-//     //goal_countries.splice(2,1);
-//     console.log("goal countries", goal_countries);
-//     console.log("getOrigin returns", getOrigin());
-//     console.log("game_origin coords is ", game_origin.coords);
-//     reroute(game_origin.coords, destination, 2)  // both origin and destination need to be set dinamic.
-// })
 
 let goal_countries;
 async function getGoals() {
     let response = await fetch('http://127.0.0.1:5000/goals');
     let goals = await response.json();
-    console.log("Obtained the goal airports");
+    //console.log("Obtained the goal airports");
     goal_countries = goals;
     createList(goal_countries);
     return goals
@@ -125,7 +87,7 @@ function createList(data) {
         //list[i].setAttribute('class', 'destinations')
         list[i].innerHTML += `${data[i].city}, ${data[i].country}`;
     }
-    console.log(data);
+    console.log("Goal List", data);
 }
 
 // Button click logic
@@ -309,10 +271,8 @@ function reroute(origin, destination, num) {
 }
 
 map.on('load', () => {
-
-    getOrigin();
     getGoals();
-    createDestinationButtons();
+    //createDestinationButtons();
     getCities();
 
 });
