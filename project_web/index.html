@@ -10,13 +10,13 @@
 <script src="script.js" defer></script>
 <style>
     body { margin: 0; padding: 0; }
-#map { position: absolute; top: 0; bottom: 0; width: 80%; }
+    #map { position: absolute; top: 0; bottom: 0; width: 80%; }
 
- .overlay {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-    }
+    .overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
 
     .overlay button {
         font: 600 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
@@ -45,6 +45,10 @@
     .destinations {
         margin: 5px;
     }
+
+    ul {
+        list-style-type: none;
+    }
 </style>
 </head>
 
@@ -56,10 +60,6 @@
 </div>
 
 <div id="container">
-    <button class="destinations">1</button>
-    <button class="destinations">2</button>
-    <button class="destinations">3</button>
-    <button class="destinations">4</button>
     <ul id="options">
     </ul>
 </div>

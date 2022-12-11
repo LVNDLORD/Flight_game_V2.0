@@ -1,17 +1,3 @@
-// // San Francisco
-// const origin = [-122.414, 37.776];
-// console.log("origin: " + origin);
-//
-// // Helsinki
-// const destination = [24.945, 60.192];
-// console.log("destination: " + destination);
-//
-// const second_dest = {
-//     origin: destination,    // from the first route
-//     destination: [14.945, 50.192],
-// }
-
-
 // TO MAKE THE MAP APPEAR YOU MUST
 // ADD YOUR ACCESS TOKEN FROM
 // https://account.mapbox.com
@@ -28,29 +14,58 @@ const map = new mapboxgl.Map({
 const map_select = document.querySelector('#replay');
 map_select.addEventListener('click', async function (evt) {
     evt.preventDefault();
-    let response = await fetch('http://127.0.0.1:5000/origin');
+    // commented this out since it makes no sense to use "REPLAY" as a main play button tbh
+    /*let response = await fetch('http://127.0.0.1:5000/origin');
     const origin = await response.json();
-    console.log("origin_f: ", origin.coords);
+    console.log("origin_f: ", origin.coords);*/
     //goal_countries.splice(2,1);
     console.log("goal countries", goal_countries);
-    reroute(origin.coords, destination, 2)  // both origin and destination need to be set dinamic.
-    // so need update http://127.0.0.1:5000/origin to 2nd value when we arrive there.
+    console.log("getOrigin returns", getOrigin());
+    console.log("game_origin coords is ", game_origin.coords);
+    reroute(game_origin.coords, destination, 2)  // both origin and destination need to be set dinamic.
 })
-//second_dest.origin, origin.coords
-
-// San Francisco
-// const origin = [-122.414, 37.776];
-
 
 // Helsinki
 const destination = [23.9711, 56.9236];   // riga
 console.log("destination: " + destination);
 
-
-const second_dest = {
-    origin: destination,                // from the first route
-    destination: [14.945, 50.192],      // prague [14.945, 50.192]
+let game_origin;
+async function getOrigin() {
+    let response = await fetch('http://127.0.0.1:5000/origin');
+    let origin = await response.json();
+    console.log("Origin coords are: ", origin.coords);    
+    console.log("Origin city", origin.city);
+    game_origin = origin
+    return game_origin
 }
+
+let in_range_destinations;
+async function getFlyable_Destinations() {
+    let response = await fetch('http://127.0.0.1:5000/fly_destinations');
+    let flydestinations = await response.json();
+    in_range_destinations = flydestinations
+    return in_range_destinations
+}
+
+// Create buttons where the player is allowed to navigate to
+async function createDestinationButtons() {
+    await getFlyable_Destinations(); // wait for the JSON with country destinations within range is finished before attempting to create the buttons
+    let button = [];
+    const container = document.querySelector('#container');
+    fly_title = document.createElement('h2')
+    fly_title.innerHTML += "Fly to:";
+    container.appendChild(fly_title);
+    console.log("waited");
+    console.log(in_range_destinations);
+    for (let i = 0; i < in_range_destinations.length; i++) {
+        button[i] = document.createElement('button');
+        container.appendChild(button[i]);
+        button[i].setAttribute('class', 'destinations');
+        button[i].setAttribute('name', `${in_range_destinations[i][6]}`);
+        button[i].innerHTML += `${in_range_destinations[i][6]}, ${in_range_destinations[i][5]}`;
+    }
+}
+
 
 let goal_countries;
 async function getGoals() {
@@ -58,11 +73,48 @@ async function getGoals() {
     let goals = await response.json();
     console.log("Obtained the goal airports");
     goal_countries = goals;
+    createList(goal_countries);
     return goals
 }
 
-function reroute(origin, destination, num) {
+// Creates a list with the goal cities. Can be styled to anything else. Maybe inside its own box or so. Fuck knows.
+// TO DO: Maybe show RED if the city has not yet been visited and green if it has
+// or... Remove the city name from the goal altogether once visited? Whatever is easier...
+function createList(data) {
+    let list = [];
+    const container = document.querySelector('#options');
+    goal_text = document.createElement('h2')
+    goal_text.innerHTML += "Goal Cities to visit";
+    container.appendChild(goal_text);
+    for (let i = 0; i < data.length; i++) {
+        list[i] = document.createElement('li')
+        container.appendChild(list[i]);
+        //list[i].setAttribute('class', 'destinations')
+        list[i].innerHTML += `${data[i].city}, ${data[i].country}`;
+    }
+    console.log(data);
+}
 
+// Button click logic
+// Handles clicks on countries - Previously used on last project...
+/*let destButtons = document.getElementsByClassName("destinations");
+let buttonsFunction = function() {
+    let country = this.getAttribute("name");
+    alert(country);
+}
+for (let i = 0; i < destButtons.length; i++) {
+    elements[i].addEventListener('click', buttonsFunction, false);
+}
+*/
+/*document.getElementById.on('click','.destinations',function(e)
+{
+    e.preventDefault();
+    let country;
+    country = e.target.value;
+    console.log(`country ${country}`);
+});*/
+
+function reroute(origin, destination, num) {
 
 // A simple line from origin to destination.
     const route = {
@@ -77,7 +129,7 @@ function reroute(origin, destination, num) {
             }
         ]
     };
-    // console.log(route)
+
 // A single point that animates along the route.
 // Coordinates are initially set to origin.
     const point = {
@@ -115,7 +167,6 @@ function reroute(origin, destination, num) {
 
 // Used to increment the value of the point measurement against the route.
     let counter = 0;
-
 
     // Add a source and layer displaying a point which will be animated in a circle.
     map.addSource('route' + num, {
@@ -192,14 +243,12 @@ function reroute(origin, destination, num) {
         counter = counter + 1;
     }
 
-
     // Start the animation
     animate(counter);
-
-
 }
 
-
 map.on('load', () => {
+    getOrigin();
     getGoals();
+    createDestinationButtons();
 });
