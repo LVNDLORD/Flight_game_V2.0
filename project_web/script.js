@@ -26,7 +26,7 @@ const map = new mapboxgl.Map({
     pitch: 20
 });
 
-let target_cities = []
+let target_cities = new Array;
 
 const targetCities = 'http://127.0.0.1:5000/list';
 async function getCities(url) {
@@ -39,7 +39,7 @@ async function getCities(url) {
         console.log(data[2].city)        // 5
         console.log(JSON.stringify(data) + ' 5cities');
         assignCities(data);
-       // target_cities.append(cityList)      // not working
+       target_cities.push(data)      // not working
 
 }
 
@@ -242,21 +242,30 @@ function reroute(origin, destination, num) {
     // Start the animation
     animate(counter);
 
-
-    const updateCurrentPos =  async function (evt) {
-    evt.preventDefault();
-    //let dataToSend = destination
-    destination = await fetch('http://127.0.0.1:5000/current')
-    const current = await destination.json();
-    console.log("curr: ", current);
-    return current
+fetch('http://127.0.0.1:5000/current/', {
+    method: 'POST',
+    headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(destination)
+})
+.then(response => response.json())
+.then(response => console.log(JSON.parse(response)))
+    // const updateCurrentPos =  async function (evt) {
+    // evt.preventDefault();
+    // //let dataToSend = destination
+    // destination = await fetch('http://127.0.0.1:5000/current')
+    // const current = await destination.json();
+    // console.log("curr: ", current);
+    // return current
 
 
 }
 
 
 
-}
+
 
 
 map.on('load', () => {

@@ -2,7 +2,7 @@ import sys
 import json
 import os
 
-from flask import Flask
+from flask import Flask, request
 from flask_cors import CORS
 import config
 import psycopg2
@@ -90,8 +90,11 @@ def close_db_connection():
 #     json_data = json.dumps(starting_airport, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 #     print(json_data)
 #     return config.current_location
-@app.route("/current")
+@app.route("/current", methods=['GET', 'POST'])
 def starting_airport():
+    if request.method == 'POST':
+        c = request.form['body']
+        print(f"country: {c}")
     sql = f"SELECT city, country, latitude_deg, longitude_deg, icao FROM airport WHERE icao = 'EFHK';"
     config.cur.execute(sql)
     result = config.cur.fetchone()
