@@ -18,17 +18,17 @@ map_select.addEventListener('click', async function (evt) {
 })
 
 // Helsinki
-const destination = [23.9711, 56.9236];   // riga
-//console.log("destination: " + destination);
+let destination = [24.9633, 60.3172];  // Helsinki
 
 let cityList;
 let game_origin;
+let pos_array = 4;
 async function getCities() {
     let response = await fetch('http://127.0.0.1:5000/all');
     let cityObject = await response.json();
     cityList = cityObject;
     console.log("cityList", cityList);
-    game_origin = cityList[4];
+    game_origin = cityList[pos_array];
     console.log(`Origin coords: ${game_origin.coords} Origin City: ${game_origin.city}`);
     //console.log(distance(60.3172,24.9633, 47.4298, 19.2611));
     //return cityList
@@ -53,10 +53,10 @@ function distance(lat1, lon1, lat2, lon2) {
 let in_range_destinations;
 async function getFlyable_Destinations() {
     await getGoals();
-    console.log("test wtf", game_origin);
-    console.log("city list", cityList);
     let origin_x = game_origin.coords[1];
     let origin_y = game_origin.coords[0];
+    let origin_city1 = game_origin.city;
+    console.log("origin city after click", origin_city1);
     let button = [];
     const container = document.querySelector('#container');
     fly_title = document.createElement('h2')
@@ -106,52 +106,25 @@ function createList(data) {
     console.log("Goal List", data);
 }
 
+let destinationObj;
 // Button click logic
-// Handles clicks on countries - Previously used on last project...
-/*let destButtons = document.getElementsByClassName("destinations");
-let buttonsFunction = function() {
-    let country = this.getAttribute("name");
-    alert(country);
-}
-for (let i = 0; i < destButtons.length; i++) {
-    elements[i].addEventListener('click', buttonsFunction, false);
-}
-*/
-/*document.getElementById.on('click','.destinations',function(e)
+$(document).on('click','.destinations',function(e)
 {
-    e.preventDefault();
-    let country;
-    country = e.target.value;
-    console.log(`country ${country}`);
-});*/
+    //e.preventDefault();
+     let btnName;
 
-// Ajax code to detect what button got clicked on and send it to flask to update the vars
-// $(document).on('click','.destinations',function(e)
-// {
-//     //e.preventDefault();
-//     let btnName;
-//     btnName = e.target.name;
-//     console.log(`button clicked: ${btnName}`);
-//     for (const obj in in_range_destinations):
-//         if (in_range_destinations.obj  == btnName):
-//             return obj
+     btnName = e.target.name;
+     console.log(`button clicked: ${btnName}`);
 
-
-
-    /*$.ajax({
-        type:'POST',
-        url:'/',
-        data: {'data': country},
-        success:function()
-        {
-            //origin = [destination[0], destination[1]];
-            console.log(origin)
-            destination = [{{ flight_destination }}];//
-            map.flyTo({center: [destination[0], destination[1]], zoom: 4, speed: 0.2});
-            location.reload(true);
+     for (let i=0; i < cityList.length; i++) {
+        if (btnName == cityList[i].city) {
+            destinationObj = cityList[i];
+            pos_array = i;
         }
-    })*/
-// });
+     }
+     console.log(destinationObj.coords);
+     destination = destinationObj.coords;
+});
 
 function reroute(origin, destination, num) {
 
@@ -281,9 +254,17 @@ function reroute(origin, destination, num) {
 
         counter = counter + 1;
     }
-
+    game_origin = destinationObj;
+    console.log("game_origin", game_origin.city);
     // Start the animation
     animate(counter);
+    //goal_text.remove();
+    //container.removeChild('fly_title');
+    //button = []
+    //document.querySelector('.destinations').remove();
+    //destinations.remove();
+    //fly_title.remove();
+    getFlyable_Destinations();
 }
 
 map.on('load', () => {
