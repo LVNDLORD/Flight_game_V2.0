@@ -30,8 +30,6 @@ async function getCities() {
     console.log("cityList", cityList);
     game_origin = cityList[pos_array];
     console.log(`Origin coords: ${game_origin.coords} Origin City: ${game_origin.city}`);
-    //console.log(distance(60.3172,24.9633, 47.4298, 19.2611));
-    //return cityList
 }
 
 // Haversine formula - https://www.htmlgoodies.com/javascript/calculate-the-distance-between-two-points-in-your-web-apps/
@@ -60,7 +58,7 @@ async function getFlyable_Destinations() {
     let button = [];
     const container = document.querySelector('#container');
     fly_title = document.createElement('h2')
-    fly_title.innerHTML += "Fly to:";
+    fly_title.innerHTML += `Current Location: ${game_origin.city}<br><br>Fly to:`;
     container.appendChild(fly_title);
 
     for (let i = 0; i < cityList.length; i++) {
@@ -82,7 +80,6 @@ async function getGoals() {
     await getCities();
     let response = await fetch('http://127.0.0.1:5000/goals');
     let goals = await response.json();
-    //console.log("Obtained the goal airports");
     goal_countries = goals;
     createList(goal_countries);
     return goals
@@ -110,7 +107,6 @@ let destinationObj;
 // Button click logic
 $(document).on('click','.destinations',function(e)
 {
-    //e.preventDefault();
      let btnName;
 
      btnName = e.target.name;
@@ -125,12 +121,29 @@ $(document).on('click','.destinations',function(e)
      console.log(destinationObj.coords);
      destination = destinationObj.coords;
 
-    // remove mapbox stuff
+    // forcefully remove mapbox stuff
     map.removeLayer('route2');
     map.removeLayer('point2');
     map.removeSource('route2');
     map.removeSource('point2');
 });
+
+function isGoalReached() {
+    console.log(`isGoalReached Current city: ${game_origin.city}`);
+    for (let i=0; i < goal_countries.length; i++){
+        if (game_origin.city == goal_countries[i].city) {
+            console.log("REACHED A GOAL CITY", game_origin.city);
+            for (let b=0; b < buttonsCountry.length; b++) {
+                console.log("Inside the for loop");
+                console.log(buttonsCountry[b].innerHTML);
+                /*if (buttonsCountry[b].innerHTML.indexOf(game_origin.city)) {
+                    console.log("Attempting to remove")
+                    buttonsCountry[b].remove();
+                }*/
+            }
+        }
+    }
+}
 
 function reroute(origin, destination, num) {
 
@@ -264,8 +277,11 @@ function reroute(origin, destination, num) {
     console.log("game_origin", game_origin.city);
     // Start the animation
     animate(counter);
+    
+    // Move camera to destination
+    map.flyTo({center: [game_origin.coords[0], game_origin.coords[1]], zoom: 4, speed: 0.2});
 
-    // Remove stuff
+    // Remove html elements to avoid duplication
     fly_title.remove();
     goal_text.remove();
     let buttonsCountry = document.getElementsByClassName('goal_destination_class');
@@ -279,11 +295,11 @@ function reroute(origin, destination, num) {
 
     // Redraw buttons
     getFlyable_Destinations();
+
+    // Check for goals
+    isGoalReached();
 }
 
 map.on('load', () => {
-    //getCities();
-    //getGoals();
-    //createDestinationButtons();
     getFlyable_Destinations();
 });
