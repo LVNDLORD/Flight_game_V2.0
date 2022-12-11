@@ -21,8 +21,6 @@ map_select.addEventListener('click', async function (evt) {
 const destination = [23.9711, 56.9236];   // riga
 //console.log("destination: " + destination);
 
-
-
 let cityList;
 let game_origin;
 async function getCities() {
@@ -31,16 +29,42 @@ async function getCities() {
     cityList = cityObject;
     console.log("cityList", cityList);
     game_origin = cityList[4];
-    console.log(`Origin coords: ${game_origin.coords} Origin City: ${game_origin.city}`);    
+    console.log(`Origin coords: ${game_origin.coords} Origin City: ${game_origin.city}`);
+    console.log("T", game_origin.coords[0]);
+    //console.log(distance(60.3172,24.9633, 47.4298, 19.2611));
     return cityList
+}
+
+// Haversine formula - https://www.htmlgoodies.com/javascript/calculate-the-distance-between-two-points-in-your-web-apps/
+function distance(lat1, lon1, lat2, lon2) {
+    var radlat1 = Math.PI * lat1/180
+    var radlat2 = Math.PI * lat2/180
+    var radlon1 = Math.PI * lon1/180
+    var radlon2 = Math.PI * lon2/180
+    var theta = lon1-lon2
+    var radtheta = Math.PI * theta/180
+    var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+    dist = Math.acos(dist)
+    dist = dist * 180/Math.PI
+    dist = dist * 60 * 1.1515
+    dist = dist * 1.609344
+    return dist
 }
 
 let in_range_destinations;
 async function getFlyable_Destinations() {
-    let response = await fetch('http://127.0.0.1:5000/fly_destinations');
+    /*let response = await fetch('http://127.0.0.1:5000/fly_destinations');
     let flydestinations = await response.json();
     in_range_destinations = flydestinations
-    return in_range_destinations
+    console.log(in_range_destinations);
+    return in_range_destinations*/
+    console.log("test wtf", game_origin);
+    /*let origin_x = game_origin.coords[0];
+    let origin_y = game_origin.coords[1];
+    for (let i = 0; cityList.length; i++) {
+        d = distance(origin_x, origin_y, cityList[i].coords[0],cityList[i].coords[1])
+        console.log(d);
+    }*/
 }
 
 // Create buttons where the player is allowed to navigate to
@@ -51,7 +75,7 @@ async function createDestinationButtons() {
     fly_title = document.createElement('h2')
     fly_title.innerHTML += "Fly to:";
     container.appendChild(fly_title);
-    console.log("waited");
+    //console.log("waited");
     console.log(in_range_destinations);
     for (let i = 0; i < in_range_destinations.length; i++) {
         button[i] = document.createElement('button');
@@ -271,8 +295,8 @@ function reroute(origin, destination, num) {
 }
 
 map.on('load', () => {
+    getCities();
     getGoals();
     //createDestinationButtons();
-    getCities();
-
+    getFlyable_Destinations();
 });
