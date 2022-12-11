@@ -100,7 +100,7 @@ function createList(data) {
     for (let i = 0; i < data.length; i++) {
         list[i] = document.createElement('li')
         container.appendChild(list[i]);
-        //list[i].setAttribute('class', 'destinations')
+        list[i].setAttribute('class', 'goal_destination_class')
         list[i].innerHTML += `${data[i].city}, ${data[i].country}`;
     }
     console.log("Goal List", data);
@@ -258,12 +258,20 @@ function reroute(origin, destination, num) {
     console.log("game_origin", game_origin.city);
     // Start the animation
     animate(counter);
-    //goal_text.remove();
-    //container.removeChild('fly_title');
-    //button = []
-    //document.querySelector('.destinations').remove();
-    //destinations.remove();
-    //fly_title.remove();
+
+    // Remove stuff
+    fly_title.remove();
+    goal_text.remove();
+    let buttonsCountry = document.getElementsByClassName('goal_destination_class');
+    for(let i = buttonsCountry.length - 1; 0 <= i; i--)
+    if(buttonsCountry[i] && buttonsCountry[i].parentElement)
+    buttonsCountry[i].parentElement.removeChild(buttonsCountry[i]);
+    let btnElements = document.getElementsByClassName("destinations");
+    for(let i = btnElements.length - 1; 0 <= i; i--)
+    if(btnElements[i] && btnElements[i].parentElement)
+    btnElements[i].parentElement.removeChild(btnElements[i]);
+
+    // Redraw buttons
     getFlyable_Destinations();
 }
 
