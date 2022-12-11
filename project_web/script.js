@@ -114,6 +114,29 @@ for (let i = 0; i < destButtons.length; i++) {
     console.log(`country ${country}`);
 });*/
 
+// Ajax code to detect what button got clicked on and send it to flask to update the vars
+$(document).on('click','.destinations',function(e)
+{
+    //e.preventDefault();
+    let country;
+    country = e.target.value;
+    alert(country);
+    console.log(`country ${country}`);
+    /*$.ajax({
+        type:'POST',
+        url:'/',
+        data: {'data': country},
+        success:function()
+        {
+            //origin = [destination[0], destination[1]];
+            console.log(origin)
+            destination = [{{ flight_destination }}];//
+            map.flyTo({center: [destination[0], destination[1]], zoom: 4, speed: 0.2});
+            location.reload(true);
+        }
+    })*/
+});
+
 function reroute(origin, destination, num) {
 
 // A simple line from origin to destination.

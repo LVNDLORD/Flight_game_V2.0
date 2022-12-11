@@ -1,14 +1,15 @@
 import sys
 import json
-import os
+#import os
 
-from flask import Flask
+from flask import Flask, request
 from flask_cors import CORS
 import config
 import psycopg2
 from psycopg2 import extensions
 from configparser import ConfigParser
-from dotenv import load_dotenv
+from geopy import distance
+
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -60,10 +61,8 @@ def connect_db():
         db_version = config.cur.fetchone()
         print(db_version)
 
-
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
-
     # close the communication with the PostgreSQL
 
 
@@ -86,7 +85,7 @@ def starting_airport():
     result = config.cur.fetchone()
     airports_obj = {'city': result[0], 'country': result[1], 'coords': [result[3], result[2]], 'ICAO': result[4]}
     json_data = json.dumps(airports_obj, default=lambda o: o.__dict__, sort_keys=True, indent=4)
-    print(json_data)
+    #print(json_data)
     return json_data
 
 @app.route("/list")
@@ -110,51 +109,33 @@ def get_random_airports():
 def get_goals():
     return config.goal_airports
 
-
-
-
-
-@app.route("/target/<icao>")
-def target_airport(icao):
-    sql = f"""SELECT city, country, latitude_deg, longitude_deg, icao FROM airport WHERE icao = '{icao}';"""
-    config.cur.execute(sql)
-    result = config.cur.fetchone()
-    airports_obj = {'city': result[0], 'country': result[1], 'coords': [result[3], result[2]], 'ICAO': result[4]}
-    json_data = json.dumps(airports_obj, default=lambda o: o.__dict__, sort_keys=True, indent=4)
-    print(json_data)
+@app.route("/fly_destinations")
+def flyable_destinations():
+    loc = json.loads(starting_airport())
+    config.current_city = loc['city']
+    config.current_location = loc['coords'] # Grab starting/current city coords
+    config.current_location.reverse() # Reverse the coordinates for distance calculation because the mapbox api is retarded
+    config.current_location = tuple(config.current_location) # convert to a tuple for geopy
+    print(config.current_location)
+    reachable_airports = []
+    nearby = f"SELECT * from airport where city != '{config.current_city}';"
+    config.cur.execute(nearby)
+    result = config.cur.fetchall()
+    for coords in result:
+        if distance.distance(coords[2:4], config.current_location).km <= 800:
+            reachable_airports.append(coords)
+    print(reachable_airports)
+    json_data = json.dumps(reachable_airports, default=lambda o: o.__dict__, sort_keys=True, indent=4)
     return json_data
-
-
-
-
-
-# def third_airport():
-#     sql = f"SELECT city, country, latitude_deg, longitude_deg FROM airport WHERE icao = 'EVRA';"
-#     config.cur.execute(sql)
-#     result = config.cur.fetchone()
-#     airports_obj = {'city': result[0], 'country': result[1], 'coords': [result[2], result[3]]}
-#     json_data = json.dumps(airports_obj, default=lambda o: o.__dict__, sort_keys=True, indent=4)
-#     print(json_data)
-#     return json_data
-
 
 # game logic
 connect_db()
-
 starting_airport()
-# doesnt play a role. Currently flying from second dest in js (line 48) to origin at line 31 from http://127.0.0.1:5000/origin
-target_airport('EVRA')  # !! pass value, as ICAO to this function to make it fly.
 get_random_airports()
+flyable_destinations()
 
 # end of the prog
 #close_db_connection()
 
 if __name__ == "__main__":
     app.run(use_reloader=False, debug=True, host='0.0.0.0', port=5000)
-
-
-
-# Q&A
-# getting data 2 in terminal
-# how to close connection in db
-# pass JSON to JS
