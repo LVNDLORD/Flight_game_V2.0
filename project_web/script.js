@@ -82,7 +82,11 @@ async function getGoals() {
     await getCities();
     let response = await fetch('http://127.0.0.1:5000/goals');
     let goals = await response.json();
-    goal_countries = goals;
+    
+    // Test if the variable is undefinied so that it can populate the countries at the beginning and change its type to Array.
+    if (goal_countries == null) {
+        goal_countries = goals;
+    }
     createList(goal_countries);
     return goals
 }
@@ -95,7 +99,12 @@ function createList(data) {
     const container = document.querySelector('#options');
     const actualContainer = document.querySelector('#goal');
     goal_text = document.createElement('h2')
-    goal_text.innerHTML += "Goal Cities to visit";
+    if (goal_countries.length == 0) {
+        console.log("Array is empty.. Player won!");
+        goal_text.innerHTML += "Congratulations. You won!";
+    } else {
+        goal_text.innerHTML += "Goal Cities to visit";
+    }
     actualContainer.appendChild(goal_text);
     for (let i = 0; i < data.length; i++) {
         list[i] = document.createElement('li')
@@ -135,18 +144,14 @@ function isGoalReached() {
     console.log(`isGoalReached Current city: ${game_origin.city}`);
     for (let i=0; i < goal_countries.length; i++){
         if (game_origin.city == goal_countries[i].city) {
-            console.log("REACHED A GOAL CITY", game_origin.city);
-            let countryListElement = document.getElementsByClassName('goal_destination_class');
-            console.log(countryListElement);
-            console.log(typeof countryListElement);
-            /*for (let b=0; b < buttonsCountry.length; b++) {
-                console.log("Inside the for loop");
-                console.log(buttonsCountry[b].innerHTML);
-                /*if (buttonsCountry[b].innerHTML.indexOf(game_origin.city)) {
-                    console.log("Attempting to remove")
-                    buttonsCountry[b].remove();
-                }*/
-            //}
+            console.log(goal_countries);
+            // loop through goal_country array and remove the one that matches the city
+            for (let c=0; c < goal_countries.length; c++) {
+                if (game_origin.city == goal_countries[c].city) {
+                    goal_countries.splice(c, 1);
+                    console.log("Removed", game_origin.city);
+                }
+            }
         }
     }
 }
