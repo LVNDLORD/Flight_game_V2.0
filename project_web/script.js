@@ -58,7 +58,7 @@ async function getFlyable_Destinations() {
     let button = [];
     const container = document.querySelector('#container');
     fly_title = document.createElement('h2')
-    fly_title.innerHTML += `Current Location: ${game_origin.city}<br><br>Fly to:`;
+    fly_title.innerHTML += `Travelled distance: ${travelledDistance} km<br><br>Current Location: ${game_origin.city}<br><br>Fly to:`;
     container.appendChild(fly_title);
 
     for (let i = 0; i < cityList.length; i++) {
@@ -76,6 +76,7 @@ async function getFlyable_Destinations() {
 }
 
 let goal_countries;
+let travelledDistance = 0;
 async function getGoals() {
     await getCities();
     let response = await fetch('http://127.0.0.1:5000/goals');
@@ -178,7 +179,7 @@ function reroute(origin, destination, num) {
     };
 
 // Calculate the distance in kilometers between route start/end point.
-    const lineDistance = turf.length(route.features[0]);
+    let lineDistance = turf.length(route.features[0]);
 
     const arc = [];
 
@@ -280,6 +281,9 @@ function reroute(origin, destination, num) {
     
     // Move camera to destination
     map.flyTo({center: [game_origin.coords[0], game_origin.coords[1]], zoom: 4, speed: 0.2});
+
+    // add total travelled distance
+    travelledDistance += Number(lineDistance.toFixed(2));
 
     // Remove html elements to avoid duplication
     fly_title.remove();
