@@ -302,4 +302,22 @@ function reroute(origin, destination, num) {
 
 map.on('load', () => {
     getFlyable_Destinations();
+    const modal = document.querySelector('.modal');
+const shade = document.querySelector('.shade');
+const btnCloseModal = document.querySelector('.close-modal');
+
+const closeModal = function () {
+  modal.classList.add('hidden');
+  shade.classList.add('hidden');
+};
+
+btnCloseModal.addEventListener('click', closeModal);
+shade.addEventListener('click', closeModal);
+
+document.addEventListener('keydown', function (e) {
+
+  if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+    closeModal();
+  }
+});
 });

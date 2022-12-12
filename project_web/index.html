@@ -13,6 +13,69 @@
     body { margin: 0; padding: 0; font: 600 15px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif; background-color: cornflowerblue;}
     #map { position: absolute; top: 0; bottom: 0; width: 75%; }
 
+.show-modal {
+  font-size: 2rem;
+  font-weight: 600;
+  padding: 1.75rem 3.5rem;
+  margin: 5rem 2rem;
+  border: none;
+  background-color: #fff;
+  color: #444;
+  border-radius: 10rem;
+  cursor: pointer;
+}
+
+.close-modal {
+  position: absolute;
+  top: 1.2rem;
+  right: 2rem;
+  font-size: 5rem;
+  color: #333;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+h3 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+}
+
+p {
+  font-size: 1rem;
+}
+
+/* -------------------------- */
+/* CLASSES TO MAKE MODAL WORK */
+.hidden {
+  display: none;
+}
+
+.modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70%;
+
+  background-color: white;
+  padding: 6rem;
+  border-radius: 5px;
+  box-shadow: 0 3rem 5rem rgba(0, 0, 0, 0.3);
+  z-index: 10;
+}
+
+.shade {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(3px);
+  z-index: 5;
+}
+
    .overlay {
             position: absolute;
             top: 20px;
@@ -21,7 +84,7 @@
 
     .overlay button {
         font: 600 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-        background-color: #3386c0;
+        background-color: #da4e4e;
         color: #fff;
         display: inline-block;
         margin: 0;
@@ -32,7 +95,7 @@
     }
 
     .overlay button:hover {
-        background-color: #4ea0da;
+        background-color: #c03333;
     }
 
     #container {
@@ -77,10 +140,28 @@
     ul {
         list-style-type: none;
     }
+
 </style>
 </head>
 
 <body>
+ <div class="modal">
+      <button class="close-modal">&times;</button>
+      <h3>Welcome to Flight Simulator 2.0</h3>
+      <p>You are a new pilot of FedEx.<br>
+          <br>
+   Your mission is to deliver packages to the airports listed in your flight task. You are flying a Boeing 737-400 with
+   the payload of 23.000 kg and flight range is restricted to 800 km due to fuel constrains.
+        If you can't reach your target destination directly,
+        you have to fly to cities that are on the way, and refill the fuel tank.
+   Try using the most efficient routes in order to generate less carbon footprint & save company's operational costs.<br>
+          <br>
+   You starting position is Helsinki, Finland.<br>
+          <br>
+    Good luck & have fun!
+</p>
+    </div>
+
 
 <div id="map"></div>
 <div class="overlay">
@@ -91,6 +172,6 @@
     <ul id="options">
     </ul>
 </div>
-
+<div class="shade"></div>
 </body>
 </html>
