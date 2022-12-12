@@ -27,9 +27,9 @@ async function getCities() {
     let response = await fetch('http://127.0.0.1:5000/all');
     let cityObject = await response.json();
     cityList = cityObject;
-    console.log("cityList", cityList);
+    //console.log("cityList", cityList);
     game_origin = cityList[pos_array];
-    console.log(`Origin coords: ${game_origin.coords} Origin City: ${game_origin.city}`);
+    //console.log(`Origin coords: ${game_origin.coords} Origin City: ${game_origin.city}`);
 }
 
 // Haversine formula - https://www.htmlgoodies.com/javascript/calculate-the-distance-between-two-points-in-your-web-apps/
@@ -54,7 +54,7 @@ async function getFlyable_Destinations() {
     let origin_x = game_origin.coords[1];
     let origin_y = game_origin.coords[0];
     let origin_city1 = game_origin.city;
-    console.log("origin city after click", origin_city1);
+    //console.log("origin city after click", origin_city1);
     let button = [];
     const container = document.querySelector('#container');
     fly_title = document.createElement('h2')
@@ -101,7 +101,7 @@ function createList(data) {
     goal_text = document.createElement('h2')
     if (goal_countries.length == 0) {
         console.log("Array is empty.. Player won!");
-        goal_text.innerHTML += "Congratulations. You won!";
+        goal_text.innerHTML += "Congratulations. You won!";  
     } else {
         goal_text.innerHTML += "Goal Cities to visit";
     }
@@ -112,7 +112,7 @@ function createList(data) {
         list[i].setAttribute('class', 'goal_destination_class')
         list[i].innerHTML += `${data[i].city}, ${data[i].country}`;
     }
-    console.log("Goal List", data);
+    //console.log("Goal List", data);
 }
 
 let destinationObj;
@@ -122,7 +122,7 @@ $(document).on('click','.destinations',function(e)
      let btnName;
 
      btnName = e.target.name;
-     console.log(`button clicked: ${btnName}`);
+     //console.log(`button clicked: ${btnName}`);
 
      for (let i=0; i < cityList.length; i++) {
         if (btnName == cityList[i].city) {
@@ -130,7 +130,7 @@ $(document).on('click','.destinations',function(e)
             pos_array = i;
         }
      }
-     console.log(destinationObj.coords);
+     //console.log(destinationObj.coords);
      destination = destinationObj.coords;
 
     // forcefully remove mapbox stuff
@@ -141,15 +141,15 @@ $(document).on('click','.destinations',function(e)
 });
 
 function isGoalReached() {
-    console.log(`isGoalReached Current city: ${game_origin.city}`);
+    //console.log(`isGoalReached Current city: ${game_origin.city}`);
     for (let i=0; i < goal_countries.length; i++){
         if (game_origin.city == goal_countries[i].city) {
-            console.log(goal_countries);
+            //console.log(goal_countries);
             // loop through goal_country array and remove the one that matches the city
             for (let c=0; c < goal_countries.length; c++) {
                 if (game_origin.city == goal_countries[c].city) {
                     goal_countries.splice(c, 1);
-                    console.log("Removed", game_origin.city);
+                    //console.log("Removed", game_origin.city);
                 }
             }
         }
@@ -282,10 +282,10 @@ function reroute(origin, destination, num) {
             requestAnimationFrame(animate);
         }
 
-        counter = counter + 1;
+        counter = counter + 2;
     }
     game_origin = destinationObj;
-    console.log("game_origin", game_origin.city);
+    //console.log("game_origin", game_origin.city);
     // Start the animation
     animate(counter);
     
