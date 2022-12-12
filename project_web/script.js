@@ -283,7 +283,8 @@ function reroute(origin, destination, num) {
     map.flyTo({center: [game_origin.coords[0], game_origin.coords[1]], zoom: 4, speed: 0.2});
 
     // add total travelled distance
-    travelledDistance += Number(lineDistance.toFixed(2));
+    travelledDistance += Math.round(lineDistance);
+
 
     // Remove html elements to avoid duplication
     fly_title.remove();
