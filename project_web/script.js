@@ -58,7 +58,7 @@ async function getFlyable_Destinations() {
     let button = [];
     const container = document.querySelector('#container');
     fly_title = document.createElement('h2')
-    fly_title.innerHTML += `Travelled distance: ${travelledDistance} km<br><br>Current Location: ${game_origin.city}<br><br>Fly to:`;
+    fly_title.innerHTML += `Travelled totally: ${travelledDistance} km<br><br>CO2 footprint: ${CO2} tonn<br><br>Current Location: ${game_origin.city}<br><br>Fly to:`;
     container.appendChild(fly_title);
 
     for (let i = 0; i < cityList.length; i++) {
@@ -77,6 +77,7 @@ async function getFlyable_Destinations() {
 
 let goal_countries;
 let travelledDistance = 0;
+let CO2 = 0;
 async function getGoals() {
     await getCities();
     let response = await fetch('http://127.0.0.1:5000/goals');
@@ -284,6 +285,9 @@ function reroute(origin, destination, num) {
 
     // add total travelled distance
     travelledDistance += Math.round(lineDistance);
+
+    // add CO2
+    CO2 += Number((lineDistance * 0.02).toFixed(1));
 
 
     // Remove html elements to avoid duplication
