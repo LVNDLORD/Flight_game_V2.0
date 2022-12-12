@@ -1,18 +1,3 @@
-'use strict';
-// // San Francisco
-// const origin = [-122.414, 37.776];
-// console.log("origin: " + origin);
-//
-// // Helsinki
-// const destination = [24.945, 60.192];
-// console.log("destination: " + destination);
-//
-// const second_dest = {
-//     origin: destination,    // from the first route
-//     destination: [14.945, 50.192],
-// }
-
-
 // TO MAKE THE MAP APPEAR YOU MUST
 // ADD YOUR ACCESS TOKEN FROM
 // https://account.mapbox.com
@@ -73,41 +58,153 @@ function assignCities(data) {
 const map_select = document.querySelector('#replay');
 map_select.addEventListener('click', async function (evt) {
     evt.preventDefault();
-    let response = await fetch('http://127.0.0.1:5000/current');
-    const current = await response.json();
-    console.log("origin_f: ", current.coords);
-    reroute(current.coords, destination.coords, 2)  // both origin and destination need to be set dinamic.
-
-
-    // so need update http://127.0.0.1:5000/origin to 2nd value when we arrive there.
+    reroute(game_origin.coords, destination, 2)  // both origin and destination need to be set dinamic.
 })
-//second_dest.origin, origin.coords
-
-// San Francisco
-// const origin = [-122.414, 37.776];
-
 
 // Helsinki
-const destination = {
-  "ICAO": "EVRA",
-  "city": "Riga",
-  "coords": [
-    23.9711,
-    56.9236
-  ],
-  "country": "Latvia"
-}   // riga
-console.log("destination: " + destination);
+let destination = [24.9633, 60.3172];  // Helsinki
 
-
-const second_dest = {
-    origin: destination,    // from the first route
-    destination: [14.945, 50.192],      // prague [14.945, 50.192]
+let cityList;
+let game_origin;
+let pos_array = 4;
+async function getCities() {
+    let response = await fetch('http://127.0.0.1:5000/all');
+    let cityObject = await response.json();
+    cityList = cityObject;
+    //console.log("cityList", cityList);
+    game_origin = cityList[pos_array];
+    //console.log(`Origin coords: ${game_origin.coords} Origin City: ${game_origin.city}`);
 }
 
+// Haversine formula - https://www.htmlgoodies.com/javascript/calculate-the-distance-between-two-points-in-your-web-apps/
+function distance(lat1, lon1, lat2, lon2) {
+    let radlat1 = Math.PI * lat1/180
+    let radlat2 = Math.PI * lat2/180
+    let radlon1 = Math.PI * lon1/180
+    let radlon2 = Math.PI * lon2/180
+    let theta = lon1-lon2
+    let radtheta = Math.PI * theta/180
+    let dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+    dist = Math.acos(dist)
+    dist = dist * 180/Math.PI
+    dist = dist * 60 * 1.1515
+    dist = dist * 1.609344
+    return dist
+}
+
+let in_range_destinations;
+async function getFlyable_Destinations() {
+    await getGoals();
+    let origin_x = game_origin.coords[1];
+    let origin_y = game_origin.coords[0];
+    let origin_city1 = game_origin.city;
+    //console.log("origin city after click", origin_city1);
+    let button = [];
+    const container = document.querySelector('#container');
+    fly_title = document.createElement('h2')
+    fly_title.innerHTML += `Travelled totally: ${travelledDistance} km<br><br>CO2 footprint: ${CO2.toFixed(3)} tonn<br><br>Current Location: ${game_origin.city}<br><br>Fly to:`;
+    container.appendChild(fly_title);
+
+    for (let i = 0; i < cityList.length; i++) {
+        d = distance(origin_x, origin_y, cityList[i].coords[1],cityList[i].coords[0]);
+        //console.log(`i: ${i} Distance: ${d}`);
+        if (d > 0 && d < 800) {
+            //console.log(cityList[i].city);
+            button[i] = document.createElement('button');
+            container.appendChild(button[i]);
+            button[i].setAttribute('class', 'destinations');
+            button[i].setAttribute('name', `${cityList[i].city}`);
+            button[i].innerHTML += `${cityList[i].city}, ${cityList[i].country}`;
+        }
+    }
+}
+
+let goal_countries;
+let travelledDistance = 0;
+let CO2 = 0;
+async function getGoals() {
+    await getCities();
+    let response = await fetch('http://127.0.0.1:5000/goals');
+    let goals = await response.json();
+    
+    // Test if the variable is undefinied so that it can populate the countries at the beginning and change its type to Array.
+    if (goal_countries == null) {
+        goal_countries = goals;
+    }
+    createList(goal_countries);
+    return goals
+}
+
+// Creates a list with the goal cities. Can be styled to anything else. Maybe inside its own box or so. Fuck knows.
+// TO DO: Maybe show RED if the city has not yet been visited and green if it has
+// or... Remove the city name from the goal altogether once visited? Whatever is easier...
+function createList(data) {
+    let list = [];
+    const container = document.querySelector('#options');
+    const actualContainer = document.querySelector('#goal');
+    goal_text = document.createElement('h2')
+    if (goal_countries.length == 0) {
+        console.log("Array is empty.. Player won!");
+        goal_text.innerHTML += "Congratulations. You won!";
+        actualContainer.appendChild(goal_text);
+        victory_text = document.createElement('p');
+        victory_text.innerHTML += "<b>You're free to fly all you want.<br>See you on the next mission!</b>";
+        actualContainer.appendChild(victory_text);
+    } else {
+        goal_text.innerHTML += "Goal Cities to visit";
+        actualContainer.appendChild(goal_text);
+    }
+    for (let i = 0; i < data.length; i++) {
+        list[i] = document.createElement('li')
+        container.appendChild(list[i]);
+        list[i].setAttribute('class', 'goal_destination_class')
+        list[i].innerHTML += `${data[i].city}, ${data[i].country}`;
+    }
+    //console.log("Goal List", data);
+}
+
+let destinationObj;
+// Button click logic
+$(document).on('click','.destinations',function(e)
+{
+    let btnName;
+
+    btnName = e.target.name;
+    //console.log(`button clicked: ${btnName}`);
+
+    for (let i=0; i < cityList.length; i++) {
+        if (btnName == cityList[i].city) {
+            destinationObj = cityList[i];
+            pos_array = i;
+        }
+    }
+    //console.log(destinationObj.coords);
+    destination = destinationObj.coords;
+
+// forcefully remove mapbox stuff
+map.removeLayer('route2');
+map.removeLayer('point2');
+map.removeSource('route2');
+map.removeSource('point2');
+});
+
+function isGoalReached() {
+    //console.log(`isGoalReached Current city: ${game_origin.city}`);
+    for (let i=0; i < goal_countries.length; i++){
+        if (game_origin.city == goal_countries[i].city) {
+            //console.log(goal_countries);
+            // loop through goal_country array and remove the one that matches the city
+            for (let c=0; c < goal_countries.length; c++) {
+                if (game_origin.city == goal_countries[c].city) {
+                    goal_countries.splice(c, 1);
+                    //console.log("Removed", game_origin.city);
+                }
+            }
+        }
+    }
+}
 
 function reroute(origin, destination, num) {
-
 
 // A simple line from origin to destination.
     const route = {
@@ -122,7 +219,7 @@ function reroute(origin, destination, num) {
             }
         ]
     };
-    // console.log(route)
+
 // A single point that animates along the route.
 // Coordinates are initially set to origin.
     const point = {
@@ -140,7 +237,7 @@ function reroute(origin, destination, num) {
     };
 
 // Calculate the distance in kilometers between route start/end point.
-    const lineDistance = turf.length(route.features[0]);
+    let lineDistance = turf.length(route.features[0]);
 
     const arc = [];
 
@@ -160,7 +257,6 @@ function reroute(origin, destination, num) {
 
 // Used to increment the value of the point measurement against the route.
     let counter = 0;
-
 
     // Add a source and layer displaying a point which will be animated in a circle.
     map.addSource('route' + num, {
@@ -234,42 +330,62 @@ function reroute(origin, destination, num) {
             requestAnimationFrame(animate);
         }
 
-        counter = counter + 1;
-
+        counter = counter + 2;
     }
-
-
+    game_origin = destinationObj;
+    //console.log("game_origin", game_origin.city);
     // Start the animation
     animate(counter);
+    
+    // Move camera to destination
+    map.flyTo({center: [game_origin.coords[0], game_origin.coords[1]], zoom: 4, speed: 0.2});
 
-fetch('http://127.0.0.1:5000/current/', {
-    method: 'POST',
-    headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(destination)
-})
-.then(response => response.json())
-.then(response => console.log(JSON.parse(response)))
-    // const updateCurrentPos =  async function (evt) {
-    // evt.preventDefault();
-    // //let dataToSend = destination
-    // destination = await fetch('http://127.0.0.1:5000/current')
-    // const current = await destination.json();
-    // console.log("curr: ", current);
-    // return current
+    // add total travelled distance
+    travelledDistance += Math.round(lineDistance);
+
+    // add CO2
+    CO2 += Number((lineDistance * 0.02).toFixed(1));
 
 
+    // Remove html elements to avoid duplication of texts
+    fly_title.remove();
+    goal_text.remove();
+    let buttonsCountry = document.getElementsByClassName('goal_destination_class');
+    for(let i = buttonsCountry.length - 1; 0 <= i; i--)
+    if(buttonsCountry[i] && buttonsCountry[i].parentElement)
+    buttonsCountry[i].parentElement.removeChild(buttonsCountry[i]);
+    let btnElements = document.getElementsByClassName("destinations");
+    for(let i = btnElements.length - 1; 0 <= i; i--)
+    if(btnElements[i] && btnElements[i].parentElement)
+    btnElements[i].parentElement.removeChild(btnElements[i]);
+
+    // Redraw buttons
+    getFlyable_Destinations();
+
+    // Check for goals
+    isGoalReached();
 }
 
-
-
-
-
-
 map.on('load', () => {
+    map.addControl(new mapboxgl.NavigationControl());
+    getFlyable_Destinations();
+    const modal = document.querySelector('.modal');
+    const shade = document.querySelector('.shade');
+    const btnCloseModal = document.querySelector('.close-modal');
 
+    const closeModal = function () {
+    modal.classList.add('hidden');
+    shade.classList.add('hidden');
+    };
+
+    btnCloseModal.addEventListener('click', closeModal);
+    shade.addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+            closeModal();
+        }
+    });
 });
 
 

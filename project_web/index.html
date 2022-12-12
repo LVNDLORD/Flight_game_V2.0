@@ -7,58 +7,181 @@
 <link href="https://api.mapbox.com/mapbox-gl-js/v2.11.0/mapbox-gl.css" rel="stylesheet">
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.11.0/mapbox-gl.js"></script>
 <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
 <script src="script.js" defer></script>
 <style>
-    body { margin: 0; padding: 0; }
-#map { position: absolute; top: 0; bottom: 0; width: 80%; }
+  body { margin: 0; padding: 0; font: 600 15px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif; background-color: cornflowerblue;}
+  #map { position: absolute; top: 0; bottom: 0; width: 75%; }
 
- .overlay {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-    }
+  .show-modal {
+    font-size: 2rem;
+    font-weight: 600;
+    padding: 1.75rem 3.5rem;
+    margin: 5rem 2rem;
+    border: none;
+    background-color: #fff;
+    color: #444;
+    border-radius: 10rem;
+    cursor: pointer;
+  }
 
-    .overlay button {
-        font: 600 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-        background-color: #3386c0;
-        color: #fff;
-        display: inline-block;
-        margin: 0;
-        padding: 10px 20px;
-        border: none;
-        cursor: pointer;
-        border-radius: 3px;
-    }
+  .close-modal {
+    position: absolute;
+    top: 1.2rem;
+    right: 2rem;
+    font-size: 5rem;
+    color: #333;
+    cursor: pointer;
+    border: none;
+    background: none;
+  }
 
-    .overlay button:hover {
-        background-color: #4ea0da;
-    }
+  h3 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+  }
 
-    #container {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        display: flex;
-        flex-direction: column;
-    }
+  p {
+    font-size: 1rem;
+  }
 
-    .destinations {
-        margin: 5px;
-    }
+  /* -------------------------- */
+  /* CLASSES TO MAKE MODAL WORK */
+  .hidden {
+    display: none;
+  }
+
+  .modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70%;
+
+    background-color: white;
+    padding: 6rem;
+    border-radius: 5px;
+    box-shadow: 0 3rem 5rem rgba(0, 0, 0, 0.3);
+    z-index: 10;
+  }
+
+  .shade {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(3px);
+    z-index: 5;
+  }
+
+  .overlay {
+          position: absolute;
+          top: 20px;
+          left: 67%;
+      }
+
+  .overlay button {
+      font: 600 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+      background-color: #da4e4e;
+      color: #fff;
+      display: inline-block;
+      margin: 0;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      border-radius: 3px;
+  }
+
+  .overlay button:hover {
+      background-color: #c03333;
+  }
+
+  #container {
+      position: absolute;
+      top: 0;
+      right: 60px;
+      display: flex;
+      flex-direction: column;
+  }
+
+
+  button {
+      font-weight: 400;
+      border: solid 2px black;
+      outline: 0;
+      padding: 0.5rem 1rem;
+      margin: 5px;
+      font-size: 1rem;
+      letter-spacing: .08rem;
+      background-color: white;
+      border-radius: 0.35rem;
+      position: relative;
+      cursor: pointer;
+  }
+
+  button::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: pink;
+    z-index: -1;
+    border-radius: 0.35rem;
+    border: solid 2px black;
+    transition: all 0.3s ease-in-out;
+  }
+
+  ul {
+      list-style-type: none;
+  }
+
+  #container #goal {
+    margin-bottom: -1.5rem;
+  }
+
+  .destinations:hover {
+    background-color: orange;
+  }
+  .destinations:focus {
+    background-color: #f44336;;
+  }
+
+
 </style>
 </head>
 
 <body>
+ <div class="modal">
+      <button class="close-modal">&times;</button>
+      <h3>Welcome to Flight Simulator 2.0</h3>
+      <p>You are a new pilot of FedEx.<br>
+          <br>
+   Your mission is to deliver packages to the airports listed in your flight task. You are flying a Boeing 737-400 with
+   the payload of 23.000 kg and flight range is restricted to 800 km due to fuel constrains.
+        If you can't reach your target destination directly,
+        you have to fly to cities that are on the way, and refill the fuel tank.
+   Try using the most efficient routes in order to generate less carbon footprint & save company's operational costs.<br>
+          <br>
+   You starting position is Helsinki, Finland.<br>
+          <br>
+    Good luck & have fun!
+</p>
+    </div>
+
 
 <div id="map"></div>
 <div class="overlay">
-    <button id="replay" type="submit" >Replay</button>
+    <button id="replay" type="submit" >GO!</button>
 </div>
 
 <div id="container">
-    <ul id="options">
-    </ul>
+    <div id="goal"></div>
+    <ul id="options"></ul>
 </div>
-
+<div class="shade"></div>
 </body>
 </html>
