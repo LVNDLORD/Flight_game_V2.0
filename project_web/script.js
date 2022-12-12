@@ -101,11 +101,15 @@ function createList(data) {
     goal_text = document.createElement('h2')
     if (goal_countries.length == 0) {
         console.log("Array is empty.. Player won!");
-        goal_text.innerHTML += "Congratulations. You won!";  
+        goal_text.innerHTML += "Congratulations. You won!";
+        actualContainer.appendChild(goal_text);
+        victory_text = document.createElement('p');
+        victory_text.innerHTML += "<b>You're free to fly all you want.<br>See you on the next mission!</b>";
+        actualContainer.appendChild(victory_text);
     } else {
         goal_text.innerHTML += "Goal Cities to visit";
+        actualContainer.appendChild(goal_text);
     }
-    actualContainer.appendChild(goal_text);
     for (let i = 0; i < data.length; i++) {
         list[i] = document.createElement('li')
         container.appendChild(list[i]);
