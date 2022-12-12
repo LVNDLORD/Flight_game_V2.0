@@ -58,7 +58,7 @@ async function getFlyable_Destinations() {
     let button = [];
     const container = document.querySelector('#container');
     fly_title = document.createElement('h2')
-    fly_title.innerHTML += `Travelled totally: ${travelledDistance} km<br><br>CO2 footprint: ${CO2} tonn<br><br>Current Location: ${game_origin.city}<br><br>Fly to:`;
+    fly_title.innerHTML += `Travelled totally: ${travelledDistance} km<br><br>CO2 footprint: ${CO2.toFixed(3)} tonn<br><br>Current Location: ${game_origin.city}<br><br>Fly to:`;
     container.appendChild(fly_title);
 
     for (let i = 0; i < cityList.length; i++) {
@@ -93,9 +93,10 @@ async function getGoals() {
 function createList(data) {
     let list = [];
     const container = document.querySelector('#options');
+    const actualContainer = document.querySelector('#goal');
     goal_text = document.createElement('h2')
     goal_text.innerHTML += "Goal Cities to visit";
-    container.appendChild(goal_text);
+    actualContainer.appendChild(goal_text);
     for (let i = 0; i < data.length; i++) {
         list[i] = document.createElement('li')
         container.appendChild(list[i]);
@@ -135,14 +136,17 @@ function isGoalReached() {
     for (let i=0; i < goal_countries.length; i++){
         if (game_origin.city == goal_countries[i].city) {
             console.log("REACHED A GOAL CITY", game_origin.city);
-            for (let b=0; b < buttonsCountry.length; b++) {
+            let countryListElement = document.getElementsByClassName('goal_destination_class');
+            console.log(countryListElement);
+            console.log(typeof countryListElement);
+            /*for (let b=0; b < buttonsCountry.length; b++) {
                 console.log("Inside the for loop");
                 console.log(buttonsCountry[b].innerHTML);
                 /*if (buttonsCountry[b].innerHTML.indexOf(game_origin.city)) {
                     console.log("Attempting to remove")
                     buttonsCountry[b].remove();
                 }*/
-            }
+            //}
         }
     }
 }
@@ -310,23 +314,23 @@ function reroute(origin, destination, num) {
 }
 
 map.on('load', () => {
+    map.addControl(new mapboxgl.NavigationControl());
     getFlyable_Destinations();
     const modal = document.querySelector('.modal');
-const shade = document.querySelector('.shade');
-const btnCloseModal = document.querySelector('.close-modal');
+    const shade = document.querySelector('.shade');
+    const btnCloseModal = document.querySelector('.close-modal');
 
-const closeModal = function () {
-  modal.classList.add('hidden');
-  shade.classList.add('hidden');
-};
+    const closeModal = function () {
+    modal.classList.add('hidden');
+    shade.classList.add('hidden');
+    };
 
-btnCloseModal.addEventListener('click', closeModal);
-shade.addEventListener('click', closeModal);
+    btnCloseModal.addEventListener('click', closeModal);
+    shade.addEventListener('click', closeModal);
 
-document.addEventListener('keydown', function (e) {
-
-  if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-    closeModal();
-  }
-});
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+            closeModal();
+        }
+    });
 });
