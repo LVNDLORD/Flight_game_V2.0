@@ -123,25 +123,25 @@ let destinationObj;
 // Button click logic
 $(document).on('click','.destinations',function(e)
 {
-     let btnName;
+    let btnName;
 
-     btnName = e.target.name;
-     //console.log(`button clicked: ${btnName}`);
+    btnName = e.target.name;
+    //console.log(`button clicked: ${btnName}`);
 
-     for (let i=0; i < cityList.length; i++) {
+    for (let i=0; i < cityList.length; i++) {
         if (btnName == cityList[i].city) {
             destinationObj = cityList[i];
             pos_array = i;
         }
-     }
-     //console.log(destinationObj.coords);
-     destination = destinationObj.coords;
+    }
+    //console.log(destinationObj.coords);
+    destination = destinationObj.coords;
 
-    // forcefully remove mapbox stuff
-    map.removeLayer('route2');
-    map.removeLayer('point2');
-    map.removeSource('route2');
-    map.removeSource('point2');
+// forcefully remove mapbox stuff
+map.removeLayer('route2');
+map.removeLayer('point2');
+map.removeSource('route2');
+map.removeSource('point2');
 });
 
 function isGoalReached() {
@@ -303,7 +303,7 @@ function reroute(origin, destination, num) {
     CO2 += Number((lineDistance * 0.02).toFixed(1));
 
 
-    // Remove html elements to avoid duplication
+    // Remove html elements to avoid duplication of texts
     fly_title.remove();
     goal_text.remove();
     let buttonsCountry = document.getElementsByClassName('goal_destination_class');
