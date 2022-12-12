@@ -144,7 +144,7 @@ def flyable_destinations():
     for coords in result:
         if distance.distance(coords[2:4], config.current_location).km <= 800:
             reachable_airports.append(coords)
-    print(reachable_airports)
+    #print(reachable_airports)
     json_data = json.dumps(reachable_airports, default=lambda o: o.__dict__, sort_keys=True, indent=4)
     return json_data
 
