@@ -323,7 +323,7 @@ function reroute(origin, destination, num) {
 }
 
 map.on('load', () => {
-    map.addControl(new mapboxgl.NavigationControl());
+    //map.addControl(new mapboxgl.NavigationControl());
     getFlyable_Destinations();
     const modal = document.querySelector('.modal');
     const shade = document.querySelector('.shade');
