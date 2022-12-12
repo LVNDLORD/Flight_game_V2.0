@@ -80,9 +80,6 @@ def close_db_connection():
 # getting data from db
 @app.route("/origin")
 def starting_airport():
-    if request.method == 'POST':
-        c = request.form['body']
-        print(f"country: {c}")
     sql = f"SELECT city, country, latitude_deg, longitude_deg, icao FROM airport WHERE icao = 'EFHK';"
     config.cur.execute(sql)
     result = config.cur.fetchone()
